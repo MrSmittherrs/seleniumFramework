@@ -26,27 +26,15 @@ public class BaseTest {
     public ExtentReports extent;
     public ExtentTest logger;
 
-    public void setupDriver(String browser){
-        if (browser.equalsIgnoreCase("chrome")){
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
-        }else if (browser.equalsIgnoreCase("firefox")){
-            WebDriverManager.firefoxdriver().setup();
-            driver = new FirefoxDriver();
-        } else if (browser.equalsIgnoreCase("edge")) {
-            WebDriverManager.edgedriver().setup();
-            driver = new EdgeDriver();
-        }
-    }
-
     @BeforeTest
     public void beforeTestMethod(){
-        sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") + File.separator+"reports"+File.separator+"SDE");
+
+        // Initialize reporter
+        sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") + File.separator + "reports" + File.separator + "index.html");
         extent = new ExtentReports();
         extent.attachReporter(sparkReporter);
+
         sparkReporter.config().setTheme(Theme.DARK);
-        extent.setSystemInfo("HostName", "RHEL8");
-        extent.setSystemInfo("Username", "root");
         sparkReporter.config().setDocumentTitle("Automation Report");
         sparkReporter.config().setReportName("Automation Test Results");
 
@@ -82,5 +70,18 @@ public class BaseTest {
     @AfterTest
     public void afterTestMethod() {
         extent.flush();
+    }
+
+    public void setupDriver(String browser){
+        if (browser.equalsIgnoreCase("chrome")){
+            WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver();
+        }else if (browser.equalsIgnoreCase("firefox")){
+            WebDriverManager.firefoxdriver().setup();
+            driver = new FirefoxDriver();
+        } else if (browser.equalsIgnoreCase("edge")) {
+            WebDriverManager.edgedriver().setup();
+            driver = new EdgeDriver();
+        }
     }
 }

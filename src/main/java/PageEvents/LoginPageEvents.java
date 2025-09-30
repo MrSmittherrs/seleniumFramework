@@ -1,31 +1,32 @@
 package PageEvents;
 
-
+import Base.BasePage;
 import PageObjects.LoginPageElements;
-import org.testng.Assert;
-import utils.ElementFetch;
+import com.aventstack.extentreports.ExtentTest;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 
-public class LoginPageEvents {
+public class LoginPageEvents extends BasePage {
 
-    ElementFetch ele = new ElementFetch();
-
-    public void  verifyLoginPageLoad(){
-
-        Assert.assertTrue(ele.getWebElements("XPATH", LoginPageElements.loginButtonText).size()>0, "Login button not found");
-
+    public LoginPageEvents(WebDriver driver, ExtentTest logger) {
+        super(driver, logger);
     }
 
-    public void  enterCredentials(){
+    public void verifyLoginPageLoad() {
+        // Check if login button exists
+        By loginButton = By.xpath(LoginPageElements.loginButton);
 
-        ele.getWebElement("XPATH", LoginPageElements.emailTextField).sendKeys("Keagansmith04@gmail.com");
-        ele.getWebElement("XPATH", LoginPageElements.passwordTextField).sendKeys("12345");
-
+        verify(driver.findElements(loginButton).size() > 0, "Verify Login Page Loaded", "Login button not found");
     }
 
-    public void  clickLoginButton(){
+    // Enter credentials for login
+    public void enterCredentials(String email, String password) {
+        type(By.xpath(LoginPageElements.emailTextField), email, "Enter Email");
+        type(By.xpath(LoginPageElements.passwordTextField), password, "Enter Password");
+    }
 
-        ele.getWebElement("XPATH", LoginPageElements.loginButtonText).click();
-
-
+    //Click the login button
+    public void clickLoginButton() {
+        click(By.xpath(LoginPageElements.loginButton), "Click Login Button");
     }
 }

@@ -1,22 +1,17 @@
 package qa.test;
 
 import Base.BaseTest;
-import PageEvents.HomePageEvents;
-import PageEvents.LoginPageEvents;
 import org.testng.annotations.Test;
-import utils.ElementFetch;
 
 public class TestCase1 extends BaseTest {
-    ElementFetch ele = new ElementFetch();
-    HomePageEvents homePageEvents = new HomePageEvents();
-    LoginPageEvents loginPageEvents = new LoginPageEvents();
 
     @Test
     public void loginTest(){
+        landingPageEvents.verifyHomePageLoad();
+        landingPageEvents.loginButtonClick();
 
-        homePageEvents.loginButtonClick();
         loginPageEvents.verifyLoginPageLoad();
-        loginPageEvents.enterCredentials();
-
+        loginPageEvents.enterCredentials("ksmith2@inspiredtesting.co.za", "P@55wordsm1Smith");
+        loginPageEvents.clickLoginButton();
     }
 }

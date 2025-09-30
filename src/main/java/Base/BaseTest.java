@@ -15,6 +15,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import utils.Constants;
+import PageEvents.LoginPageEvents;
+import PageEvents.LandingPageEvents;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -26,61 +28,66 @@ public class BaseTest {
     public ExtentReports extent;
     public ExtentTest logger;
 
-    public void setupDriver(String browser){
-        if (browser.equalsIgnoreCase("chrome")){
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
-        }else if (browser.equalsIgnoreCase("firefox")){
-            WebDriverManager.firefoxdriver().setup();
-            driver = new FirefoxDriver();
-        } else if (browser.equalsIgnoreCase("edge")) {
-            WebDriverManager.edgedriver().setup();
-            driver = new EdgeDriver();
-        }
-    }
+    // 👇 Add page objects here
+    protected LoginPageEvents loginPageEvents;
+    protected LandingPageEvents landingPageEvents;
 
     @BeforeTest
-    public void beforeTestMethod(){
-        sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") + File.separator+"reports"+File.separator+"SDE");
+    public void beforeTestMethod() {
+        sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") + File.separator + "reports" + File.separator + "index.html");
         extent = new ExtentReports();
         extent.attachReporter(sparkReporter);
+
         sparkReporter.config().setTheme(Theme.DARK);
-        extent.setSystemInfo("HostName", "RHEL8");
-        extent.setSystemInfo("Username", "root");
         sparkReporter.config().setDocumentTitle("Automation Report");
         sparkReporter.config().setReportName("Automation Test Results");
-
-
     }
 
     @BeforeMethod
     @Parameters("browser")
     public void beforeMethod(String browser, Method testMethod) {
+        // create the logger for this test
         logger = extent.createTest(testMethod.getName());
+
+        // setup driver
         setupDriver(browser);
         driver.manage().window().maximize();
         driver.get(Constants.url);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+
+        // 👇 Instantiate page objects AFTER driver & logger are ready
+        landingPageEvents = new LandingPageEvents(driver, logger);
+        loginPageEvents = new LoginPageEvents(driver, logger);
     }
 
     @AfterMethod
     public void afterMethod(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE) {
             logger.log(Status.FAIL, MarkupHelper.createLabel(result.getName() + " - Test Case Failed", ExtentColor.RED));
-            logger.log(Status.FAIL,  MarkupHelper.createLabel(result.getThrowable() + " - Test Case Failed", ExtentColor.RED));
-        }
-        else if (result.getStatus() == ITestResult.SKIP) {
+            logger.log(Status.FAIL, MarkupHelper.createLabel(result.getThrowable() + " - Test Case Failed", ExtentColor.RED));
+        } else if (result.getStatus() == ITestResult.SKIP) {
             logger.log(Status.SKIP, MarkupHelper.createLabel(result.getName() + " - Test Case Skipped", ExtentColor.ORANGE));
-        }
-        else if (result.getStatus() == ITestResult.SUCCESS) {
+        } else if (result.getStatus() == ITestResult.SUCCESS) {
             logger.log(Status.PASS, MarkupHelper.createLabel(result.getName() + " - Test Case Success", ExtentColor.GREEN));
         }
         driver.quit();
-
     }
 
     @AfterTest
     public void afterTestMethod() {
         extent.flush();
+    }
+
+    public void setupDriver(String browser) {
+        if (browser.equalsIgnoreCase("chrome")) {
+            WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver();
+        } else if (browser.equalsIgnoreCase("firefox")) {
+            WebDriverManager.firefoxdriver().setup();
+            driver = new FirefoxDriver();
+        } else if (browser.equalsIgnoreCase("edge")) {
+            WebDriverManager.edgedriver().setup();
+            driver = new EdgeDriver();
+        }
     }
 }
